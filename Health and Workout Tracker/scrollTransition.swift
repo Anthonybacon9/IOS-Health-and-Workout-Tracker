@@ -1,5 +1,6 @@
-.scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
+//
+//  scrollTransition.swift
+//  Health and Workout Tracker
+//
+//  Created by Anthony Bacon on 19/09/2024.
+//

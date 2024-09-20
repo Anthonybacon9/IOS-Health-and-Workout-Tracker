@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Activity {
+struct Health {
     let id: Int
     let title: String
     let subtitle: String
@@ -15,8 +15,8 @@ struct Activity {
     let amount: String
 }
 
-struct ActivityCard: View {
-    @State var activity: Activity
+struct HealthCard: View {
+    @State var health: Health
     
     var body: some View {
         ZStack {
@@ -29,15 +29,15 @@ struct ActivityCard: View {
 //                            .resizable()
 //                            .scaledToFit()
 //                            .frame(width: 50, height: 50)
-                        Text("\(activity.title) \(Image(systemName: activity.image))")
+                        Text("\(health.title) \(Image(systemName: health.image))")
                             //.font(.headline)
                             .font(.system(size: 16))
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
-                        Text(activity.subtitle)
+                        Text(health.subtitle)
                             .font(.subheadline)
                             .foregroundStyle(.white)
-                        Text(activity.amount)
+                        Text(health.amount)
                             .font(.system(size: 25))
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
@@ -46,14 +46,14 @@ struct ActivityCard: View {
             }
         }/*.frame(width: 380, height: 190)*/
             .clipShape(RoundedRectangle(cornerRadius: 15))
-            .scrollTransition { content, phase in
-                content
-                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-            }
+//            .scrollTransition { content, phase in
+//                content
+//                    .opacity(phase.isIdentity ? 1.0 : 0.0)
+//                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
+//            }
     }
 }
 
 #Preview {
-    ActivityCard(activity: Activity(id: 1, title: "Last Workout", subtitle: "Swimming", image: "figure.open.water.swim", amount: "65 Minutes"))
+    HealthCard(health: Health(id: 1, title: "Last Workout", subtitle: "Swimming", image: "figure.open.water.swim", amount: "65 Minutes"))
 }

@@ -6,126 +6,92 @@
 //
 
 import SwiftUI
+import UIKit
+
+func getFormattedDate() -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .long // You can change to .short or .medium as needed
+    formatter.timeStyle = .none // For date only, set timeStyle to .none
+    return formatter.string(from: Date())
+}
+
+func getFormattedTime() -> String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .none // You can change to .short or .medium as needed
+    formatter.timeStyle = .short // For date only, set timeStyle to .none
+    return formatter.string(from: Date())
+}
+
+extension View {
+    func applyScrollTransition(phase: ScrollTransitionPhase) -> some View {
+        self
+            .opacity(phase.isIdentity ? 1.0 : 0.0)
+            .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
+    }
+}
 
 struct ContentView: View {
-    @State private var animateBackground = false
+    //@EnvironmentObject var manager: HealthManager
+    init() {
+        setupTabBarAppearance()
+    }
+    
+    
     @State var backgroundColour: Color = Color(red: 247 / 255, green: 210 / 255, blue: 235 / 255)
-    @State private var currentImageIndex = 0
-        let systemImages = ["heart.fill","bolt.fill", "flame.fill", "waveform.path.ecg", "figure.open.water.swim", "figure.mind.and.body", "figure.soccer", "lungs.fill"]
-    
-    
-    
-    
-    
-    
+    @State private var opacity = 1.0
+    @State private var selectedTab = 0
+    @State private var fitness = true
+    //@State var backgroundColour: Color = Color.orange
     var body: some View {
         ZStack {
-            Color(backgroundColour)
-                .ignoresSafeArea()
+            VStack {
+                TabView(selection: $selectedTab) {
+                    FitnessPage()
+                        .tabItem {
+                            Label("Fitness", systemImage: "figure.run")
+                        }
+                        .tag(0)
+                        .onAppear() {
+                            fitness = true
+                        }
+                    HealthPage()
+                        .tabItem {
+                            Label("Health", systemImage: "heart.fill")
+                        }
+                        .tag(1)
+                        .onAppear() {
+                            fitness = false
+                        }
+                }.accentColor(fitness ? .green : .red)
+            }
+//            Color(backgroundColour)
+//                .ignoresSafeArea()
             
             Carousel()
             
             Spacer()
             
-            VStack {
-                ScrollView(showsIndicators: false) {
-                    VStack {
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.red)
-                            .font(.title)
-                            //.padding(.bottom, 30)
-                        
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .frame(width: 380, height:190 )
-                            .overlay {
-                                Text("Last Workout")
-                                    .font(.headline)
-                                    .frame(width:350, height:160, alignment:.topLeading)
-                                    .foregroundStyle(.white)
-                                    .opacity(0.5)
-                            }
-                            .scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
-                        
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .frame(width: 380, height:190 )
-                            .scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
-                        
-                        
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .frame(width: 380, height:190 )
-                            .scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
-                        
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .frame(width: 380, height:190 )
-                            .scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .frame(width: 380, height:190 )
-                            .scrollTransition { content, phase in
-                                content
-                                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-                            }
-                    }
-                    .scrollTargetLayout()
-                }
-                .contentMargins(.vertical, 40, for: .scrollContent)
-                .scrollTargetBehavior(.viewAligned)
-                //.ignoresSafeArea()
-                
-                Spacer()
-
-            }
-            BottomNavBar()
-                .offset(y:335)
+//            BottomNavBar()
+//                .offset(y:335)
         }
     }
     
-    func Carousel() -> some View {
-        return GeometryReader { geometry in
-            HStack(spacing: 0) {
-                ForEach(systemImages, id: \.self) { systemImage in
-                    Image(systemName: systemImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .opacity(0.1) // Subtle background effect
-                }
-            }
-            .frame(width: geometry.size.width * CGFloat(systemImages.count), height: geometry.size.height)
-            .offset(x: animateBackground ? -geometry.size.width * CGFloat(systemImages.count - 1) : 0)
-            .animation(Animation.linear(duration: 200).repeatForever(autoreverses: false), value: animateBackground)
-            .onAppear {
-                animateBackground = true
+    private func setupTabBarAppearance() {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor.black // Set the background color of the tab bar
+
+            // Customize selected and unselected tab bar item colors
+            UITabBar.appearance().tintColor = UIColor.systemGreen // Selected item color
+            UITabBar.appearance().unselectedItemTintColor = UIColor.lightGray // Unselected item color
+            
+            // Apply to all tab bars
+            UITabBar.appearance().standardAppearance = appearance
+            if #available(iOS 15.0, *) {
+                UITabBar.appearance().scrollEdgeAppearance = appearance
             }
         }
-        .ignoresSafeArea()
-    }
+    
     
     func Create() -> some View {
         return
@@ -191,6 +157,36 @@ struct ContentView: View {
     }
 }
 
+
+struct Carousel: View {
+    @State private var animateBackground = false
+    @State private var currentImageIndex = 0
+        let systemImages = ["heart.fill","bolt.fill", "flame.fill", "waveform.path.ecg", "figure.open.water.swim", "figure.mind.and.body", "figure.soccer", "lungs.fill", "figure.roll.runningpace", "figure.cooldown"]
+        
+    var body: some View {
+        GeometryReader { geometry in
+            HStack(spacing: 0) {
+                ForEach(systemImages, id: \.self) { systemImage in
+                    Image(systemName: systemImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .opacity(0.1) // Subtle background effect
+                }
+            }
+            .frame(width: geometry.size.width * CGFloat(systemImages.count), height: geometry.size.height)
+            .offset(x: animateBackground ? -geometry.size.width * CGFloat(systemImages.count - 1) : 0)
+            .animation(Animation.linear(duration: 200).repeatForever(autoreverses: false), value: animateBackground)
+            .onAppear {
+                animateBackground = true
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+
 #Preview {
     ContentView()
+        .environmentObject(HealthManager())
 }

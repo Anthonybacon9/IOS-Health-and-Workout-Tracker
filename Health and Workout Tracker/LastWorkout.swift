@@ -19,12 +19,17 @@ struct LastWorkout: View {
                     .frame(width:350, height:160, alignment:.topLeading)
                     .foregroundStyle(.white)
                     .opacity(0.5)
+                Text("FOOTBALL")
+                    .font(.headline)
+                    .frame(width:350, height:160, alignment:.center)
+                    .foregroundStyle(.white)
+                    .opacity(0.5)
             }
-            .scrollTransition { content, phase in
-                content
-                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-            }
+//            .scrollTransition { content, phase in
+//                content
+//                    .opacity(phase.isIdentity ? 1.0 : 0.0)
+//                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
+//            }
     }
 }
 

@@ -8,27 +8,44 @@
 import SwiftUI
 
 struct Activity {
-    let title
+    let id: Int
+    let title: String
+    let subtitle: String
+    let image: String
+    let amount: String
 }
 
 struct ActivityCard: View {
+    @State var activity: Activity
+    
     var body: some View {
-        RoundedRectangle(cornerRadius: 15)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .frame(width: 380, height:190 )
-            .overlay {
-                Text("Steps")
-                    .font(.headline)
-                    .frame(width:350, height:160, alignment:.topLeading)
-                    .foregroundStyle(.white)
-                    .opacity(0.5)
-                Text("10,000")
-                    .font(.headline)
-                    .frame(width:350, height:160, alignment:.center)
-                    .foregroundStyle(.white)
-                    .opacity(0.5)
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .background(.ultraThinMaterial)
+            VStack {
+                HStack {
+                    VStack {
+//                        Image(systemName: activity.image)
+//                            .resizable()
+//                            .scaledToFit()
+//                            .frame(width: 50, height: 50)
+                        Text("\(activity.title) \(Image(systemName: activity.image))")
+                            //.font(.headline)
+                            .font(.system(size: 16))
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                        Text(activity.subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                        Text(activity.amount)
+                            .font(.system(size: 25))
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                    }.padding(10)
+                }
             }
+        }/*.frame(width: 380, height: 190)*/
+            .clipShape(RoundedRectangle(cornerRadius: 15))
             .scrollTransition { content, phase in
                 content
                     .opacity(phase.isIdentity ? 1.0 : 0.0)
@@ -38,5 +55,5 @@ struct ActivityCard: View {
 }
 
 #Preview {
-    Steps()
+    ActivityCard(activity: Activity(id: 1, title: "Last Workout", subtitle: "Swimming", image: "figure.open.water.swim", amount: "65 Minutes"))
 }
