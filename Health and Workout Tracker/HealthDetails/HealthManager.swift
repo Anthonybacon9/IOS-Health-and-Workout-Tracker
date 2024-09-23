@@ -32,6 +32,8 @@ class HealthManager: ObservableObject {
     
     @Published var BMIStats: [String : BMI] = [:]
     
+    @Published var CaloriesStats: [String : Calories] = [:]
+    
     @Published var height: Double!
     
     @Published var navigateToBMIDetail: Bool = false // New property to trigger navigation
@@ -49,8 +51,9 @@ class HealthManager: ObservableObject {
         let heartRateType = HKQuantityType(.heartRate)
         let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
         let heightType = HKQuantityType.quantityType(forIdentifier: .height)!
+        let calorieType = HKQuantityType(.dietaryEnergyConsumed)
         
-        let healthTypes: Set = [steps, calories, workout, heartRateType, weightType, heightType]
+        let healthTypes: Set = [steps, calories, workout, heartRateType, weightType, heightType, calorieType]
         
         Task {
             do{
@@ -62,6 +65,7 @@ class HealthManager: ObservableObject {
                 fetchWeekFootballStats()
                 fetchWeekHeartRateStats()
                 fetchBMIStats()
+                fetchCaloriesData()
             } catch {
                 print("error fetching health data")
             }
@@ -112,27 +116,51 @@ class HealthManager: ObservableObject {
     }
     
     // MARK: TODAYS CALORIES EATEN
-    func fetchTodaysCaloriesEaten() {
+    func fetchCaloriesData() {
         let calorieType = HKQuantityType(.dietaryEnergyConsumed)
-        let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
         
-        let query = HKStatisticsQuery(quantityType: calorieType, quantitySamplePredicate: predicate) { _, result, error in
-            guard let quantity = result?.sumQuantity(), error == nil else {
+        // Fetch today's calories
+        let todayPredicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
+        let todayQuery = HKStatisticsQuery(quantityType: calorieType, quantitySamplePredicate: todayPredicate) { _, result, error in
+            guard let todayQuantity = result?.sumQuantity(), error == nil else {
                 print("Error fetching today's calorie data")
                 return
             }
             
-            let caloriesEaten = quantity.doubleValue(for: .kilocalorie())
-            let activity = Activity(id: 1, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "flame.fill", amount: caloriesEaten.formattedString())
+            let caloriesEatenToday = todayQuantity.doubleValue(for: .kilocalorie())
+            let healthToday = Health(id: 2, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "flame.fill", amount: caloriesEatenToday.formattedString())
+            let calories = Calories(caloriesEatenToday: caloriesEatenToday.formattedString(), caloriesEatenThisWeek: "0.0") // Default for this week
             
+            // Update the health stats for today
             DispatchQueue.main.async {
-                self.activities["todayCaloriesEaten"] = activity
+                self.CaloriesStats["todayCaloriesEaten"] = calories
+                self.healthStats["calories"] = healthToday
             }
+            
+            // Now fetch this week's calories
+            let weekPredicate = HKQuery.predicateForSamples(withStart: .startOfWeek, end: Date())
+            let weekQuery = HKStatisticsQuery(quantityType: calorieType, quantitySamplePredicate: weekPredicate) { _, result, error in
+                guard let weekQuantity = result?.sumQuantity(), error == nil else {
+                    print("Error fetching this week's calorie data")
+                    return
+                }
+                
+                let caloriesEatenThisWeek = weekQuantity.doubleValue(for: .kilocalorie()).formattedString()
+                
+                // Update the calories object with this week's data
+                DispatchQueue.main.async {
+                    let updatedCalories = Calories(caloriesEatenToday: caloriesEatenToday.formattedString(), caloriesEatenThisWeek: caloriesEatenThisWeek)
+                    self.CaloriesStats["calories"] = updatedCalories // Store the updated calories
+                }
+            }
+            
+            // Execute the weekly query
+            self.healthStore.execute(weekQuery)
         }
         
-        healthStore.execute(query)
+        // Execute the daily query
+        healthStore.execute(todayQuery)
     }
-    
     
     // MARK: WEEK RUNNING STATS
     func fetchWeekRunningStats() {

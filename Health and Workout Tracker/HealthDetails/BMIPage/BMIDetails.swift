@@ -17,26 +17,53 @@ struct BMIDetailView: View {
     var bmi: BMI
     
     var body: some View {
-        VStack {
+        VStack(spacing: 20) { // Add spacing between elements
             if let health = health {
                 Text(health.title)
                     .font(.largeTitle)
+                    .fontWeight(.bold) // Emphasize the title
+                    .foregroundColor(.primary) // Use primary color for title
+                    .padding(.top)
+                    .frame(maxWidth: .infinity, alignment: .center) // Center the title
+
                 Text(health.subtitle)
-                    .font(.subheadline)
-                Text("BMI: \(health.amount)")
-                    .font(.headline)
-                Text("Height: \(bmi.height) m")
-                    .font(.headline)
-                Text("Height: \(bmi.weight) m")
-                    .font(.headline)
+                    .font(.title3)
+                    .foregroundColor(.secondary) // Use secondary color for subtitle
+                    .frame(maxWidth: .infinity, alignment: .center) // Center the subtitle
+
+                Divider() // Add a divider for separation
+
+                VStack(alignment: .center, spacing: 10) { // Align inner VStack center
+                    Text("BMI: \(health.amount)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .center) // Center the BMI text
+
+                    Text("Height: \(bmi.height, specifier: "%.2f") m") // Format height
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .center) // Center the height text
+
+                    Text("Weight: \(bmi.weight, specifier: "%.2f") kg") // Format weight
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .center) // Center the weight text
+                }
+                .padding(.horizontal) // Horizontal padding for inner VStack
+
             } else {
                 Text("No data available")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center) // Center the no data text
             }
         }
-        .padding()
+        .padding() // Outer padding for the whole VStack
+        .navigationTitle("BMI Details") // Optional: Set the navigation title
+        .navigationBarTitleDisplayMode(.inline) // Optional: Inline title display
     }
 }
-
 //#Preview {
 //    BMIDetailView(health: Health(id: 1, title: "title", subtitle: "subtitle", image: "figure.walk", amount: "100"))
 //}

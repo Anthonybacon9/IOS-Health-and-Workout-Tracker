@@ -44,6 +44,18 @@ struct HealthPage: View {
                                     HealthCard(health: item.value)
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                
+                            } else if item.value.title == "Calories Eaten Today" {
+                                // Access the calorie data from the manager
+                                //let calories = manager.CaloriesStats["calories"] as? Calories
+                                let amountToday = manager.CaloriesStats["calories"]?.caloriesEatenToday ?? "0.0"
+                                let amountThisWeek = manager.CaloriesStats["calories"]?.caloriesEatenThisWeek ?? "0.0"
+                                
+                                NavigationLink(destination: CaloriesDetailView(health: item.value, calorie: Calories(caloriesEatenToday: amountToday, caloriesEatenThisWeek: amountThisWeek))) {
+                                    HealthCard(health: item.value)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
                             } else {
                                 NavigationLink(destination: HealthDetailView(health: item.value)) {
                                     HealthCard(health: item.value)
