@@ -7,12 +7,36 @@
 
 import SwiftUI
 
-struct BMIDetails: View {
+struct BMI {
+    let height: Double
+    let weight: Double
+}
+
+struct BMIDetailView: View {
+    var health: Health?
+    var bmi: BMI
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            if let health = health {
+                Text(health.title)
+                    .font(.largeTitle)
+                Text(health.subtitle)
+                    .font(.subheadline)
+                Text("BMI: \(health.amount)")
+                    .font(.headline)
+                Text("Height: \(bmi.height) m")
+                    .font(.headline)
+                Text("Height: \(bmi.weight) m")
+                    .font(.headline)
+            } else {
+                Text("No data available")
+            }
+        }
+        .padding()
     }
 }
 
-#Preview {
-    BMIDetails()
-}
+//#Preview {
+//    BMIDetailView(health: Health(id: 1, title: "title", subtitle: "subtitle", image: "figure.walk", amount: "100"))
+//}

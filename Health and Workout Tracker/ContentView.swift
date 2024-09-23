@@ -44,6 +44,7 @@ struct ContentView: View {
     //@State var backgroundColour: Color = Color.orange
     var body: some View {
         ZStack {
+            
             VStack {
                 TabView(selection: $selectedTab) {
                     FitnessPage()
@@ -64,8 +65,6 @@ struct ContentView: View {
                         }
                 }.accentColor(fitness ? .green : .red)
             }
-//            Color(backgroundColour)
-//                .ignoresSafeArea()
             
             Carousel()
             
