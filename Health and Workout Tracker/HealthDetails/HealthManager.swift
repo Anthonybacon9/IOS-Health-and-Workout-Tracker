@@ -35,6 +35,8 @@ class HealthManager: ObservableObject {
     @Published var CaloriesStats: [String : Calories] = [:]
     
     @Published var FootballStats: [String : Football] = [:]
+//    
+//    @Published var MockFootballStats: [String : Football] = [id:]
     
     @Published var height: Double!
     
@@ -279,23 +281,27 @@ class HealthManager: ObservableObject {
             let formattedTime = timeFormatter.string(from: workout.startDate)
             let formattedEndTime = timeFormatter.string(from: workout.endDate)
             
-            var avgHeartRate: Double = 0.0
-            var maxHeartRate: Double = 0.0
-            var minHeartRate: Double = 0.0
+            var _: Double = 0.0
+            var _: Double = 0.0
+            var _: Double = 0.0
             
             // Fetch heart rate data
             let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
             let heartRatePredicate = HKQuery.predicateForSamples(withStart: workout.startDate, end: workout.endDate)
             
-            let heartRateQuery = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: heartRatePredicate, options: [.discreteAverage, .discreteMax, .discreteMin]) { _, result, error in
-                guard let result = result, error == nil else {
+            let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
+                guard let heartRateSamples = samples as? [HKQuantitySample], error == nil else {
                     print("Error fetching heart rate data")
                     return
                 }
                 
-                avgHeartRate = result.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
-                maxHeartRate = result.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
-                minHeartRate = result.minimumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
+                var heartRates: [HeartRate] = heartRateSamples.map {
+                    HeartRate(time: $0.startDate, bpm: $0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())))
+                }
+                
+                let avgHeartRate = heartRates.map(\.bpm).reduce(0, +) / Double(heartRates.count)
+                let maxHeartRate = heartRates.map(\.bpm).max() ?? 0.0
+                let minHeartRate = heartRates.map(\.bpm).min() ?? 0.0
                 
                 
                 // Get VO2 Max value
@@ -312,7 +318,8 @@ class HealthManager: ObservableObject {
                     endTime: formattedEndTime,
                     avgHeartRate: avgHeartRate,
                     maxHeartRate: maxHeartRate,
-                    minHeartRate: minHeartRate
+                    minHeartRate: minHeartRate,
+                    heartRates: heartRates
                 )
                 
                 // Update UI
