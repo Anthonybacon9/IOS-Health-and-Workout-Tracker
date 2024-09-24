@@ -83,7 +83,7 @@ struct FootballView: View {
                                     .scrollTargetLayout()
                                 }
                                 VStack {
-                                    Text("Distance Ran Over Time")
+                                    Text("Distance Ran Over Time!")
                                         .font(.headline)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.horizontal)
