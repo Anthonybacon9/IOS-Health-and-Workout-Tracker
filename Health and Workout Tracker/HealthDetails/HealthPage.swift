@@ -10,6 +10,8 @@ import SwiftUI
 struct HealthPage: View {
     @EnvironmentObject var manager: HealthManager
     @State private var isBMIDetailActive = false
+    @State var showCalPopover = false
+    @State  var showBMIPopover = false
     
     var body: some View {
         NavigationStack { // Use NavigationStack to enable navigation
@@ -32,7 +34,13 @@ struct HealthPage: View {
                             .opacity(phase.isIdentity ? 1.0 : 0.0)
                             .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
                     }
-                    
+                    Divider()
+                        .padding(.vertical, 5)
+                        .scrollTransition { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1.0 : 0.0)
+                                .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
+                        }
                     LazyVGrid(columns: Array(repeating: GridItem(spacing: 10), count: 1)) {
                         ForEach(manager.healthStats.sorted(by: { $0.value.id < $1.value.id }), id: \.key) { item in
                             // Wrap HealthCard with a NavigationLink
@@ -40,22 +48,32 @@ struct HealthPage: View {
                                 let height = manager.BMIStats["bmi"]?.height ?? 0.0 // Provide a fallback value
                                 let weight = manager.BMIStats["bmi"]?.weight ?? 0.0 // Provide a fallback value
                                 
-                                NavigationLink(destination: BMIDetailView(health: item.value, bmi: BMI(height: height, weight: weight))) {
-                                    HealthCard(health: item.value)
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                                HealthCard(health: item.value)
+                                    .onTapGesture {
+                                        showBMIPopover.toggle() // Toggle the popover when the card is tapped
+                                    }
+                                    .popover(isPresented: $showBMIPopover) {
+                                        BMIDetailView(health: item.value, bmi: BMI(height: height, weight: weight))
+                                            .frame(width: 300, height: 400) // Customize the size of the popover
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 
                             } else if item.value.title == "Calories Eaten Today" {
                                 // Access the calorie data from the manager
-                                //let calories = manager.CaloriesStats["calories"] as? Calories
                                 let amountToday = manager.CaloriesStats["calories"]?.caloriesEatenToday ?? "0.0"
                                 let amountThisWeek = manager.CaloriesStats["calories"]?.caloriesEatenThisWeek ?? "0.0"
                                 
-                                NavigationLink(destination: CaloriesDetailView(health: item.value, calorie: Calories(caloriesEatenToday: amountToday, caloriesEatenThisWeek: amountThisWeek))) {
-                                    HealthCard(health: item.value)
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                                // Use state to control the popover visibilit
                                 
+                                HealthCard(health: item.value)
+                                    .onTapGesture {
+                                        showCalPopover.toggle() // Toggle the popover when the card is tapped
+                                    }
+                                    .popover(isPresented: $showCalPopover) {
+                                        CaloriesDetailView(health: item.value, calorie: Calories(caloriesEatenToday: amountToday, caloriesEatenThisWeek: amountThisWeek))
+                                            .frame(width: 300, height: 400) // Customize the size of the popover
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                             } else {
                                 NavigationLink(destination: HealthDetailView(health: item.value)) {
                                     HealthCard(health: item.value)

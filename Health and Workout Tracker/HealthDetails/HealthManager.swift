@@ -34,49 +34,59 @@ class HealthManager: ObservableObject {
     
     @Published var CaloriesStats: [String : Calories] = [:]
     
+    @Published var FootballStats: [String : Football] = [:]
+    
     @Published var height: Double!
     
     @Published var navigateToBMIDetail: Bool = false // New property to trigger navigation
     @Published var selectedBMI: Health? // Holds the BMI data for the detail view
     
-    @Published var mockActivities: [String : Activity] = [
-        "todaySteps" : Activity(id: 0, title: "Today's Steps", subtitle: "Goal: 10,000", image: "figure.walk", amount: "9,098"),
-        "todaysCalories" : Activity(id: 1, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: "876")
-        ]
+//    @Published var mockActivities: [String : Activity] = [
+//        "todaySteps" : Activity(id: 0, title: "Today's Steps", subtitle: "Goal: 10,000", image: "figure.walk", amount: "9,098"),
+//        "todaysCalories" : Activity(id: 1, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: "876")
+//        ]
     
     init () {
-        let steps = HKQuantityType(.stepCount)
-        let calories = HKQuantityType(.activeEnergyBurned)
-        let workout = HKObjectType.workoutType()
-        let heartRateType = HKQuantityType(.heartRate)
-        let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
-        let heightType = HKQuantityType.quantityType(forIdentifier: .height)!
-        let calorieType = HKQuantityType(.dietaryEnergyConsumed)
-        
-        let healthTypes: Set = [steps, calories, workout, heartRateType, weightType, heightType, calorieType]
+        let healthTypes: Set = [
+                    HKQuantityType(.stepCount),
+                    HKQuantityType(.activeEnergyBurned),
+                    HKObjectType.workoutType(),
+                    HKQuantityType(.heartRate),
+                    HKQuantityType.quantityType(forIdentifier: .bodyMass)!,
+                    HKQuantityType.quantityType(forIdentifier: .height)!,
+                    HKQuantityType(.dietaryEnergyConsumed),
+                    HKQuantityType.quantityType(forIdentifier: .vo2Max)!
+                ]
         
         Task {
-            do{
+            do {
                 try await healthStore.requestAuthorization(toShare: [], read: healthTypes)
-                fetchTodaySteps()
-                fetchTodaysCalories()
-                fetchWeekRunningStats()
-                fetchWeekWalkingStats()
-                fetchWeekFootballStats()
-                fetchWeekHeartRateStats()
-                fetchBMIStats()
-                fetchCaloriesData()
+                await refreshData() // Call refreshData here
             } catch {
-                print("error fetching health data")
+                print("Error requesting HealthKit authorization: \(error)")
             }
         }
     }
+    
+    func refreshData() async {
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask { await self.fetchTodaySteps() }
+                group.addTask { await self.fetchWeekFootballStats() }
+                group.addTask { await self.fetchTodaysCalories() }
+                group.addTask { await self.fetchCaloriesData() }
+                group.addTask { await self.fetchWeekRunningStats() }
+                group.addTask { await self.fetchWeekWalkingStats() }
+                group.addTask { await self.fetchWeekHeartRateStats() }
+                group.addTask { await self.fetchBMIStats() }
+                group.addTask { await self.fetchLatestFootballWorkout() }
+            }
+        }
     
     // MARK: TODAYS STEPS
     func fetchTodaySteps() {
         let steps = HKQuantityType(.stepCount)
         _ = HKQuantityType(.activeEnergyBurned)
-        let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: .startOfDay, end: .now)
         let query = HKStatisticsQuery(quantityType: steps, quantitySamplePredicate: predicate) {_, result, error in
             guard let quantity = result?.sumQuantity(), error == nil else {
                 print("error fetching today's step data")
@@ -84,9 +94,10 @@ class HealthManager: ObservableObject {
             }
             
             let stepCount = quantity.doubleValue(for: .count())
-            let activity = Activity(id: 0, title: "Today's Steps", subtitle: "Goal: 10,000", image: "shoeprints.fill", amount: stepCount.formattedString())
+            let activity = Activity(id: 0, title: "Today's Steps", subtitle: "Goal: 10,000", image: "shoeprints.fill", amount: stepCount.formattedString(), color: .blue)
             DispatchQueue.main.async {
                 self.activities["todaySteps"] = activity
+                //print(stepCount)
             }
             
             //print(stepCount.formattedString())
@@ -105,7 +116,7 @@ class HealthManager: ObservableObject {
                 return
             }
             let caloriesBurned = quantity.doubleValue(for: .kilocalorie())
-            let activity = Activity(id: 1, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString())
+            let activity = Activity(id: 1, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString(), color: .orange)
             DispatchQueue.main.async {
                 self.activities["todayCalories"] = activity
             }
@@ -128,7 +139,7 @@ class HealthManager: ObservableObject {
             }
             
             let caloriesEatenToday = todayQuantity.doubleValue(for: .kilocalorie())
-            let healthToday = Health(id: 2, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "flame.fill", amount: caloriesEatenToday.formattedString())
+            let healthToday = Health(id: 2, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "fork.knife", amount: caloriesEatenToday.formattedString())
             let calories = Calories(caloriesEatenToday: caloriesEatenToday.formattedString(), caloriesEatenThisWeek: "0.0") // Default for this week
             
             // Update the health stats for today
@@ -179,7 +190,7 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 2, title: "Running", subtitle: "Minutes This Week", image: "figure.run", amount: "\(count)")
+            let activity = Activity(id: 2, title: "Running", subtitle: "Minutes This Week", image: "figure.run", amount: "\(count)", color: .green)
             
             DispatchQueue.main.async {
                 self.activities["weekRunning"] = activity
@@ -205,7 +216,7 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 3, title: "Walking", subtitle: "Minutes This Week", image: "figure.walk", amount: "\(count)")
+            let activity = Activity(id: 1, title: "Walking", subtitle: "Minutes This Week", image: "figure.walk", amount: "\(count)", color: .yellow)
             
             DispatchQueue.main.async {
                 self.activities["weekWalking"] = activity
@@ -231,12 +242,105 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 4, title: "Football", subtitle: "Minutes This Week", image: "figure.soccer", amount: "\(count)")
+            let activity = Activity(id: 4, title: "Football", subtitle: "Minutes This Week", image: "figure.soccer", amount: "\(count)", color: .red)
             
             DispatchQueue.main.async {
                 self.activities["weekFootball"] = activity
             }
         }
+        healthStore.execute(query)
+    }
+    
+    // MARK: LATEST FOOTBALL WORKOUT
+    func fetchLatestFootballWorkout() {
+        let workoutType = HKSampleType.workoutType()
+        
+        // Set up the date formatter
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        
+        let timeFormatter = DateFormatter()
+        //timeFormatter.dateStyle = .medium
+        timeFormatter.timeStyle = .short
+        
+        let workoutPredicate = HKQuery.predicateForWorkouts(with: .soccer)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        
+        let query = HKSampleQuery(sampleType: workoutType, predicate: workoutPredicate, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let workout = samples?.first as? HKWorkout, error == nil else {
+                print("Error fetching latest football workout data")
+                return
+            }
+            
+            let duration = Int(workout.duration) / 60
+            let distance = workout.totalDistance?.doubleValue(for: .meterUnit(with: .kilo)) ?? 0.0
+            let caloriesBurned = workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0.0
+            let formattedDate = dateFormatter.string(from: workout.startDate)
+            let formattedTime = timeFormatter.string(from: workout.startDate)
+            let formattedEndTime = timeFormatter.string(from: workout.endDate)
+            
+            var avgHeartRate: Double = 0.0
+            var maxHeartRate: Double = 0.0
+            var minHeartRate: Double = 0.0
+            
+            // Fetch heart rate data
+            let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+            let heartRatePredicate = HKQuery.predicateForSamples(withStart: workout.startDate, end: workout.endDate)
+            
+            let heartRateQuery = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: heartRatePredicate, options: [.discreteAverage, .discreteMax, .discreteMin]) { _, result, error in
+                guard let result = result, error == nil else {
+                    print("Error fetching heart rate data")
+                    return
+                }
+                
+                avgHeartRate = result.averageQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
+                maxHeartRate = result.maximumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
+                minHeartRate = result.minimumQuantity()?.doubleValue(for: .count().unitDivided(by: .minute())) ?? 0.0
+                
+                
+                // Get VO2 Max value
+                //vo2Max = vo2MaxSample.quantity.doubleValue(for: HKUnit(from: "ml/kg*min"))
+                
+                // Update the football data with VO2 max
+                let football = Football(
+                    id: 4,
+                    title: "Latest Football Workout",
+                    distance: distance,
+                    Kcal: caloriesBurned,
+                    date: formattedDate,
+                    time: formattedTime,
+                    endTime: formattedEndTime,
+                    avgHeartRate: avgHeartRate,
+                    maxHeartRate: maxHeartRate,
+                    minHeartRate: minHeartRate
+                )
+                
+                // Update UI
+                DispatchQueue.main.async {
+                    self.FootballStats["latestFootball"] = football
+                }
+                
+                
+                //self.healthStore.execute(vo2MaxQuery)
+            }
+            
+            self.healthStore.execute(heartRateQuery)
+            
+            // Create the activity for the basic workout data
+//            let activity = Activity(
+//                id: 4,
+//                title: "Latest Football Workout",
+//                subtitle: "Duration: \(duration) min",
+//                image: "figure.soccer",
+//                amount: "Distance: \(distance) km\nCalories: \(caloriesBurned) kcal"
+//            )
+            
+            // Update UI for the basic data
+            //            DispatchQueue.main.async {
+            //                self.activities["latestFootball"] = activity
+            //            }
+        }
+        
         healthStore.execute(query)
     }
     
@@ -322,7 +426,7 @@ class HealthManager: ObservableObject {
             let formattedBMI = String(format: "%.2f", bmi1)
             
             // Create an Activity instance to display the BMI
-            let health = Health(id: 1, title: "BMI", subtitle: "Body Mass Index", image: "figure.stand", amount: formattedBMI)
+            let health = Health(id: 1, title: "BMI", subtitle: "Body Mass Index", image: "heart.text.square", amount: formattedBMI)
             let bmi = BMI(height: height, weight: weight)
             
             // Update the activity in the main thread

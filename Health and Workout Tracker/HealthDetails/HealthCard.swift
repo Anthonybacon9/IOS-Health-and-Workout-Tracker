@@ -21,32 +21,44 @@ struct HealthCard: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 15)
-                .background(.ultraThinMaterial)
+                .fill(.ultraThinMaterial)  // Correct background application
+                .shadow(radius: 10)  // Adding depth and shadow
+
             VStack {
-                HStack {
-                    VStack {
-                        Text("\(health.title) \(Image(systemName: health.image))")
-                            //.font(.headline)
-                            .font(.system(size: 16))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                        Text(health.subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.white)
-                        Text(health.amount)
-                            .font(.system(size: 25))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }.padding(10)
+                VStack(spacing: 10) {  // Consistent spacing for balance
+                    Text(health.title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.primary)  // Adaptive for light/dark mode
+                    
+                    Image(systemName: health.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.secondary)  // Light color for icons
+                    
+                    Text(health.subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)  // Consistent color hierarchy
+                    
+                    Text(health.amount)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
                 }
+                .padding(20)  // Proper padding for spacing and clarity
             }
-        }/*.frame(width: 380, height: 190)*/
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-//            .scrollTransition { content, phase in
-//                content
-//                    .opacity(phase.isIdentity ? 1.0 : 0.0)
-//                    .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
-//            }
+        }
+        //.frame(width: 350, height: 180)  // Adjusted frame size for better layout
+        .clipShape(RoundedRectangle(cornerRadius: 15))  // Consistent rounded corners
+        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)  // Subtle shadow
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5) // Subtle shadow for elevation
+        .scrollTransition { content, phase in
+            content
+                .opacity(phase.isIdentity ? 1.0 : 0.0)
+                .scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+        }
     }
 }
 

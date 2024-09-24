@@ -18,6 +18,18 @@ struct CaloriesDetailView: View {
     var calorie: Calories
     
     var body: some View {
+        ZStack {
+            GeometryReader { geometry in
+                HStack(spacing: 0) {
+                        Image(systemName: "flame.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .opacity(0.1) // Subtle background effect
+                }
+            }
+            .ignoresSafeArea()
+            
             VStack(spacing: 20) { // Add spacing between elements
                 if let health = health {
                     Text(health.title)
@@ -25,28 +37,28 @@ struct CaloriesDetailView: View {
                         .fontWeight(.bold) // Emphasize the title
                         .foregroundColor(.primary) // Use primary color for title
                         .padding(.top)
-
+                    
                     Text(health.subtitle)
                         .font(.title3)
                         .foregroundColor(.secondary) // Use secondary color for subtitle
-
+                    
                     Divider() // Add a divider for separation
-
+                    
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Calories Eaten Today: \(calorie.caloriesEatenToday)")
                             .font(.headline)
                             .foregroundColor(.primary)
-
+                        
                         Text("Calories Eaten This Week: \(calorie.caloriesEatenThisWeek)")
                             .font(.headline)
                             .foregroundColor(.primary)
-
+                        
                         Text("Calories Burned Today: \(manager.activities["todayCalories"]?.amount ?? "0.0")")
                             .font(.subheadline)
                             .foregroundColor(.gray) // Slightly lighter for less emphasis
                     }
                     .padding(.horizontal) // Horizontal padding for inner VStack
-
+                    
                 } else {
                     Text("No data available")
                         .font(.headline)
@@ -56,7 +68,8 @@ struct CaloriesDetailView: View {
             }
             .padding() // Outer padding for the whole VStack
             .navigationTitle("Calorie Details") // Optional: Set the navigation title
-            .navigationBarTitleDisplayMode(.inline) // Optional: Inline title display
+            .navigationBarTitleDisplayMode(.inline)
+        } // Optional: Inline title display
         }
 }
 
