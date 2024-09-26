@@ -9,7 +9,13 @@ import SwiftUI
 
 struct TermsView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text("Leaderboard")
+                .font(.largeTitle)
+                .bold()
+            
+            //TextField("Username")
+        }
     }
 }
 

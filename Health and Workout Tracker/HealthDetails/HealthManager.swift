@@ -35,7 +35,9 @@ class HealthManager: ObservableObject {
     @Published var CaloriesStats: [String : Calories] = [:]
     
     @Published var FootballStats: [String : Football] = [:]
-//    
+    
+    @Published var footballWorkouts: [Football] = []
+//
 //    @Published var MockFootballStats: [String : Football] = [id:]
     
     @Published var height: Double!
@@ -81,6 +83,7 @@ class HealthManager: ObservableObject {
                 group.addTask { await self.fetchWeekHeartRateStats() }
                 group.addTask { await self.fetchBMIStats() }
                 group.addTask { await self.fetchLatestFootballWorkout() }
+                group.addTask { await self.fetchFootballWorkouts() }
             }
         }
     
@@ -118,7 +121,7 @@ class HealthManager: ObservableObject {
                 return
             }
             let caloriesBurned = quantity.doubleValue(for: .kilocalorie())
-            let activity = Activity(id: 1, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString(), color: .orange)
+            let activity = Activity(id: 2, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString(), color: .orange)
             DispatchQueue.main.async {
                 self.activities["todayCalories"] = activity
             }
@@ -141,7 +144,7 @@ class HealthManager: ObservableObject {
             }
             
             let caloriesEatenToday = todayQuantity.doubleValue(for: .kilocalorie())
-            let healthToday = Health(id: 2, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "fork.knife", amount: caloriesEatenToday.formattedString())
+            let healthToday = Health(id: 1, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "fork.knife", amount: caloriesEatenToday.formattedString())
             let calories = Calories(caloriesEatenToday: caloriesEatenToday.formattedString(), caloriesEatenThisWeek: "0.0") // Default for this week
             
             // Update the health stats for today
@@ -346,6 +349,78 @@ class HealthManager: ObservableObject {
             //            DispatchQueue.main.async {
             //                self.activities["latestFootball"] = activity
             //            }
+        }
+        
+        healthStore.execute(query)
+    }
+    
+    // MARK: ALL FOOTBALL WORKOUTS
+    func fetchFootballWorkouts() {
+        let workoutType = HKSampleType.workoutType()
+        
+        let workoutPredicate = HKQuery.predicateForWorkouts(with: .soccer)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        
+        let query = HKSampleQuery(sampleType: workoutType, predicate: workoutPredicate, limit: 0, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let workouts = samples as? [HKWorkout], error == nil else {
+                print("Error fetching football workouts: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+            for workout in workouts {
+                let duration = Int(workout.duration) / 60
+                let distance = workout.totalDistance?.doubleValue(for: .meterUnit(with: .kilo)) ?? 0.0
+                let caloriesBurned = workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0.0
+                let startDate = workout.startDate
+                let endDate = workout.endDate
+
+                var heartRates: [HeartRate] = []
+
+                // Fetch heart rate data for the workout period
+                let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+                let heartRatePredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate)
+
+                let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: heartRatePredicate, limit: 0, sortDescriptors: nil) { _, heartRateSamples, error in
+                    guard let heartRateSamples = heartRateSamples as? [HKQuantitySample], error == nil else {
+                        print("Error fetching heart rate data: \(error?.localizedDescription ?? "Unknown error")")
+                        return
+                    }
+
+                    // Process heart rate samples
+                    for sample in heartRateSamples {
+                        let bpm = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                        let time = sample.startDate
+                        heartRates.append(HeartRate(time: time, bpm: bpm))
+                    }
+
+                    // Calculate average, max, and min heart rates
+                    let avgHeartRate = heartRates.map { $0.bpm }.reduce(0, +) / Double(heartRates.count)
+                    let maxHeartRate = heartRates.map { $0.bpm }.max() ?? 0
+                    let minHeartRate = heartRates.map { $0.bpm }.min() ?? 0
+
+                    // Create the Football object with workout and heart rate data
+                    let football = Football(
+                        id: Int(workout.uuid.uuidString.hashValue),  // Use hash of the UUID as an ID
+                        title: "Football Workout",
+                        distance: distance,
+                        Kcal: caloriesBurned,
+                        date: DateFormatter.localizedString(from: startDate, dateStyle: .medium, timeStyle: .none),
+                        time: DateFormatter.localizedString(from: startDate, dateStyle: .none, timeStyle: .short),
+                        endTime: DateFormatter.localizedString(from: endDate, dateStyle: .none, timeStyle: .short),
+                        avgHeartRate: avgHeartRate,
+                        maxHeartRate: maxHeartRate,
+                        minHeartRate: minHeartRate,
+                        heartRates: heartRates
+                    )
+
+                    // Update the workouts list (assuming you have a way to store the workouts)
+                    DispatchQueue.main.async {
+                        self.footballWorkouts.append(football)
+                    }
+                }
+                
+                self.healthStore.execute(heartRateQuery)
+            }
         }
         
         healthStore.execute(query)

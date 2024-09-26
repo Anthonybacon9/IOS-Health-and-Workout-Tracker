@@ -36,6 +36,8 @@ struct ContentView: View {
         setupTabBarAppearance()
     }
     
+    @AppStorage("username") var username : String = ""
+    @AppStorage("authenicated") var authenicated : Bool = false
     
     @State var backgroundColour: Color = Color(red: 247 / 255, green: 210 / 255, blue: 235 / 255)
     @State private var opacity = 1.0
@@ -43,35 +45,44 @@ struct ContentView: View {
     @State private var fitness = true
     //@State var backgroundColour: Color = Color.orange
     var body: some View {
-        ZStack {
+        NavigationView {
+            ZStack {
+                VStack {
+                    TabView(selection: $selectedTab) {
+                        FitnessPage(authenticated: $authenicated)
+                            .tabItem {
+                                Label("Fitness", systemImage: "figure.run")
+                            }
+                            .tag(0)
+                            .onAppear() {
+                                fitness = true
+                            }
+                        HealthPage()
+                            .tabItem {
+                                Label("Health", systemImage: "heart.fill")
+                            }
+                            .tag(1)
+                            .onAppear() {
+                                fitness = false
+                            }
+                    }.accentColor(fitness ? .green : .red)
+                }
+                
+                Carousel()
+                
+                Spacer()
+                
+                //            BottomNavBar()
+                //                .offset(y:335)
+            }.navigationBarItems(leading: NavigationLink(
+                destination: UserProfile(username: $username, authenticated: $authenicated),
+            label: {
+                Image(systemName: "person.fill")
+                    .padding(10)
+                    .foregroundStyle(.orange)
+            }).accentColor(.white)
             
-            VStack {
-                TabView(selection: $selectedTab) {
-                    FitnessPage()
-                        .tabItem {
-                            Label("Fitness", systemImage: "figure.run")
-                        }
-                        .tag(0)
-                        .onAppear() {
-                            fitness = true
-                        }
-                    HealthPage()
-                        .tabItem {
-                            Label("Health", systemImage: "heart.fill")
-                        }
-                        .tag(1)
-                        .onAppear() {
-                            fitness = false
-                        }
-                }.accentColor(fitness ? .green : .red)
-            }
-            
-            Carousel()
-            
-            Spacer()
-            
-//            BottomNavBar()
-//                .offset(y:335)
+            )
         }
     }
     

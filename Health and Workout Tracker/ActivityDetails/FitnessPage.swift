@@ -10,6 +10,7 @@ import SwiftUI
 struct FitnessPage: View {
     @EnvironmentObject var manager: HealthManager
     @State var showFootballPopover = false
+    @Binding var authenticated: Bool
 
     var body: some View {
         NavigationStack {  // Use NavigationStack to enable navigation
@@ -48,7 +49,7 @@ struct FitnessPage: View {
                         ForEach(manager.activities.sorted(by: { $0.value.id < $1.value.id }), id: \.key) { item in
                             // Wrap ActivityCard with a NavigationLink
                             if item.value.title == "Football" {
-                                ActivityCard(activity: item.value)
+                                ActivityCard(activity: item.value, authenticated: $authenticated, cardType: "football")
                                     .onTapGesture {
                                         showFootballPopover.toggle() // Toggle the popover when the card is tapped
                                     }
@@ -59,7 +60,7 @@ struct FitnessPage: View {
                                     .buttonStyle(PlainButtonStyle())
                             } else {
                                 NavigationLink(destination: ActivityDetailView(activity: item.value)) {
-                                    ActivityCard(activity: item.value)
+                                    ActivityCard(activity: item.value, authenticated: $authenticated, cardType: "")
                                 }.buttonStyle(.plain)
                             }
                         }
@@ -108,6 +109,6 @@ struct ActivityDetailView: View {
 }
 
 #Preview {
-    FitnessPage()
+    FitnessPage(authenticated: .constant(true))
         .environmentObject(HealthManager())
 }

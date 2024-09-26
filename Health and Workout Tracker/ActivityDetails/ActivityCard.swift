@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct Activity {
     let id: Int
@@ -18,10 +19,14 @@ struct Activity {
 
 struct ActivityCard: View {
     @State var activity: Activity
+    @Binding var authenticated: Bool
+    let cardType: String
+    
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 15)
-                .fill(.ultraThinMaterial)  // Updated background handling
+                .fill(.ultraThickMaterial)  // Updated background handling
                 .shadow(radius: 10)  // Adding depth
             
             VStack {
@@ -34,7 +39,18 @@ struct ActivityCard: View {
                         
                         Spacer()
                         
+                        //AND LOGGED IN!!!
+                        if cardType == "football" && authenticated {
+                            NavigationLink(destination: FootballLeaderboard()) {
+                                Image(systemName: "list.number")
+                                    //.resizable()
+                                    .frame(width: 25, height: 20)
+                            }
+                                //.padding(.top, 10) // Adds some space from the content above
+                            }
+                        
                         Image(systemName: "chevron.right")
+                            //.padding(.horizontal)
                     } // Uses adaptive color (dynamic light/dark mode)
                     
                     Divider()
@@ -53,12 +69,15 @@ struct ActivityCard: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundStyle(.primary)
+                    
+                    
                 }
                 .padding(20) // Adjusted padding for better spacing
             }
         }
         //.frame(width: 350, height: 180) // Fine-tuned frame size
         .clipShape(RoundedRectangle(cornerRadius: 15))
+        //.background(.ultraThickMaterial)
         .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5) // Subtle shadow for elevation
         .scrollTransition { content, phase in
             content
@@ -68,6 +87,8 @@ struct ActivityCard: View {
     }
 }
 
+
+
 #Preview {
-    ActivityCard(activity: Activity(id: 1, title: "Last Workout", subtitle: "Swimming", image: "figure.open.water.swim", amount: "65 Minutes", color: .red))
+    ActivityCard(activity: Activity(id: 1, title: "Last Workout", subtitle: "Football", image: "figure.open.water.swim", amount: "65 Minutes", color: .red), authenticated: .constant(true), cardType: "football")
 }
