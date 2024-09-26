@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct LeaderboardFUser: Codable, Identifiable {
-    let id: Int
-    let createdAt: String
+    let id = UUID()
     let username: String
     let count: Int
     
@@ -18,12 +17,12 @@ struct LeaderboardFUser: Codable, Identifiable {
 
 class LeaderboardViewModel: ObservableObject {
     var mockData = [
-        LeaderboardFUser(id: 1, createdAt: "", username: "Anthony Bacon", count: 1100),
-        LeaderboardFUser(id: 2, createdAt: "", username: "John Doe", count: 1000 ),
-        LeaderboardFUser(id: 3, createdAt: "", username: "John Doe", count: 1000 ),
-        LeaderboardFUser(id: 4, createdAt: "", username: "John Doe", count: 1000 ),
-        LeaderboardFUser(id: 5, createdAt: "", username: "John Doe", count: 1000 ),
-        LeaderboardFUser(id: 6, createdAt: "", username: "John Doe", count: 1000 )
+        LeaderboardFUser(username: "Anthony Bacon", count: 1100),
+        LeaderboardFUser(username: "John Doe", count: 1000 ),
+        LeaderboardFUser(username: "John Doe", count: 1000 ),
+        LeaderboardFUser(username: "John Doe", count: 1000 ),
+        LeaderboardFUser(username: "John Doe", count: 1000 ),
+        LeaderboardFUser(username: "John Doe", count: 1000 )
     ]
 }
 
@@ -73,6 +72,14 @@ struct FootballLeaderboard: View {
             .frame(maxHeight: .infinity, alignment: .top)
             
 
+        }
+        
+        .task {
+            do {
+                try await DatabaseManager.shared.postStepCountUpdateFor(username: "Anthony", count: 12345)
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 }

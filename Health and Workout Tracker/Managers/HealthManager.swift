@@ -21,6 +21,26 @@ extension Date {
         
         return calendar.date(from: components)!
     }
+    
+    func fetchPreviousMonday() -> Date? {
+        let calendar = Calendar.current
+        
+        let weekday = calendar.component(.weekday, from: self)
+        
+        let daysToSubtract = (weekday + 5) % 7
+        
+        var dateComponents = DateComponents()
+        dateComponents.day = -daysToSubtract
+        
+        return calendar.date(byAdding: dateComponents, to: self) ?? Date()
+    }
+    
+    func MondayDateFormat() -> String {
+        let monday = self.fetchPreviousMonday()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd-MM-yyyy"
+        return formatter.string(from: monday!)
+    }
 }
 
 class HealthManager: ObservableObject {

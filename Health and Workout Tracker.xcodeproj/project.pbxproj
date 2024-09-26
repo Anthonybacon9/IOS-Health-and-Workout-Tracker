@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		648414C42CA60A99002A98B9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 648414C32CA60A99002A98B9 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		641AA8432C9B78880022A5AD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				648414C42CA60A99002A98B9 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = "Health and Workout Tracker";
 			packageProductDependencies = (
+				648414C32CA60A99002A98B9 /* FirebaseFirestore */,
 			);
 			productName = "Health and Workout Tracker";
 			productReference = 641AA8322C9B78860022A5AD /* Health and Workout Tracker.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 641AA8292C9B78860022A5AD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				648414C22CA60A99002A98B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 641AA8332C9B78860022A5AD /* Products */;
 			projectDirPath = "";
@@ -562,6 +571,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		648414C22CA60A99002A98B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		648414C32CA60A99002A98B9 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 648414C22CA60A99002A98B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 641AA82A2C9B78860022A5AD /* Project object */;
 }
