@@ -119,7 +119,7 @@ class HealthManager: ObservableObject {
             }
             
             let stepCount = quantity.doubleValue(for: .count())
-            let activity = Activity(id: 0, title: "Today's Steps", subtitle: "Goal: 10,000", image: "shoeprints.fill", amount: stepCount.formattedString(), color: .blue)
+            let activity = Activity(id: 0, title: "Steps", subtitle: "Today", image: "shoeprints.fill", amount: stepCount.formattedString(), color: .blue)
             DispatchQueue.main.async {
                 self.activities["todaySteps"] = activity
                 //print(stepCount)

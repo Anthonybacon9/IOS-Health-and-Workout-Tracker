@@ -7,26 +7,12 @@
 
 import SwiftUI
 
-struct LeaderboardFUser: Codable, Identifiable {
-    let id = UUID()
-    let username: String
-    let count: Int
-    
-    //Country
-}
 
-class LeaderboardViewModel: ObservableObject {
-    var mockData = [
-        LeaderboardFUser(username: "Anthony Bacon", count: 1100),
-        LeaderboardFUser(username: "John Doe", count: 1000 ),
-        LeaderboardFUser(username: "John Doe", count: 1000 ),
-        LeaderboardFUser(username: "John Doe", count: 1000 ),
-        LeaderboardFUser(username: "John Doe", count: 1000 ),
-        LeaderboardFUser(username: "John Doe", count: 1000 )
-    ]
-}
+
 
 struct FootballLeaderboard: View {
+    
+    @State var num: Int = 0
     
     @StateObject var viewModel = LeaderboardViewModel()
     
@@ -52,10 +38,10 @@ struct FootballLeaderboard: View {
                 }.padding()
                 
                 LazyVStack {
-                    ForEach(viewModel.mockData) { person in
+                    ForEach(viewModel.leaders) { person in
                         HStack {
                             
-                            Text("\(person.id)")
+                            Text("1")
                             Text(person.username)
                                 .font(.headline)
                             
@@ -74,13 +60,7 @@ struct FootballLeaderboard: View {
 
         }
         
-        .task {
-            do {
-                try await DatabaseManager.shared.postStepCountUpdateFor(username: "Anthony", count: 12345)
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
+        
     }
 }
 
