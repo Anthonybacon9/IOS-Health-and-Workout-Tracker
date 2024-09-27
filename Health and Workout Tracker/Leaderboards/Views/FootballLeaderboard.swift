@@ -11,7 +11,7 @@ import SwiftUI
 
 
 struct FootballLeaderboard: View {
-    
+    @AppStorage("username") var username : String = ""
     @State var num: Int = 0
     
     @StateObject var viewModel = LeaderboardViewModel()
@@ -38,13 +38,17 @@ struct FootballLeaderboard: View {
                 }.padding()
                 
                 LazyVStack {
-                    ForEach(viewModel.leaders) { person in
+                    ForEach(Array(viewModel.leaderResult.top10.enumerated()), id: \.element.id) { (idx, person) in
                         HStack {
                             
-                            Text("1")
+                            Text("\(idx + 1)")
                             Text(person.username)
                                 .font(.headline)
                             
+                            if username == person.username {
+                                Image(systemName: "crown.fill")
+                                    .foregroundStyle(.yellow)
+                            }
                             Spacer()
                             
                             Text("\(person.count) minutes")
@@ -54,6 +58,27 @@ struct FootballLeaderboard: View {
                         .padding(10)
                     }
                 }
+                
+                
+                
+                if let user = viewModel.leaderResult.user {
+                    Image(systemName: "ellipsis")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                    HStack {
+                        Text(user.username)
+                            .font(.headline)
+                        
+                        Spacer()
+                        
+                        Text("\(user.count) minutes")
+                            .font(.headline)
+                    }
+                    .padding(.horizontal)
+                    .padding(10)
+                }
+                
             }
             .frame(maxHeight: .infinity, alignment: .top)
             
