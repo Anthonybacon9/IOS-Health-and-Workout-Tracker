@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 class LeaderboardViewModel: ObservableObject {
+    //@EnvironmentObject var manager: HealthManager
     
     @Published var leaderResult = LeaderboardResult(user: nil, top10: [])
     
@@ -23,7 +25,7 @@ class LeaderboardViewModel: ObservableObject {
     init() {
         Task {
             do {
-                try await postMinutesUpdateForUser(username: "xcode", count: 123)
+                try await postMinutesUpdateForUser()
                 let result = try await fetchLeaderboards()
                 DispatchQueue.main.async {
                     self.leaderResult = result
@@ -52,7 +54,19 @@ class LeaderboardViewModel: ObservableObject {
         }
     }
     
-    func postMinutesUpdateForUser(username: String, count: Int) async throws {
-        try await DatabaseManager.shared.postMinutesUpdateForUser(leader: LeaderboardFUser(username: username, count: count))
+    func postMinutesUpdateForUser() async throws {
+        guard let username = UserDefaults.standard.string(forKey: "username") else {
+            throw URLError(.badURL)
+        }
+        let minutes = try await fetchCurrentWeekMinuteCount()
+        try await DatabaseManager.shared.postMinutesUpdateForUser(leader: LeaderboardFUser(username: username, count: Int(minutes)))
+    }
+    
+    private func fetchCurrentWeekMinuteCount() async throws -> Double {
+        try await withCheckedThrowingContinuation({ continuation in
+            HealthManager.shared.fetchCurrentWeekFootballMinutes { result in
+                continuation.resume(with: result)
+            }
+        })
     }
 }

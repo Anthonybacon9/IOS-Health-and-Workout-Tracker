@@ -22,21 +22,8 @@ extension Date {
         return calendar.date(from: components)!
     }
     
-    func fetchPreviousMonday() -> Date? {
-        let calendar = Calendar.current
-        
-        let weekday = calendar.component(.weekday, from: self)
-        
-        let daysToSubtract = (weekday + 5) % 7
-        
-        var dateComponents = DateComponents()
-        dateComponents.day = -daysToSubtract
-        
-        return calendar.date(byAdding: dateComponents, to: self) ?? Date()
-    }
-    
     func MondayDateFormat() -> String {
-        let monday = self.fetchPreviousMonday()
+        let monday = Date.startOfWeek
         let formatter = DateFormatter()
         formatter.dateFormat = "dd-MM-yyyy"
         return formatter.string(from: monday!)
@@ -44,6 +31,7 @@ extension Date {
 }
 
 class HealthManager: ObservableObject {
+    static let shared = HealthManager()
     let healthStore = HKHealthStore()
     
     @Published var activities: [String : Activity] = [:]
@@ -141,7 +129,7 @@ class HealthManager: ObservableObject {
                 return
             }
             let caloriesBurned = quantity.doubleValue(for: .kilocalorie())
-            let activity = Activity(id: 2, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString(), color: .orange)
+            let activity = Activity(id: 5, title: "Today's Calories", subtitle: "Goal: 900", image: "flame.fill", amount: caloriesBurned.formattedString(), color: .orange)
             DispatchQueue.main.async {
                 self.activities["todayCalories"] = activity
             }
@@ -164,7 +152,7 @@ class HealthManager: ObservableObject {
             }
             
             let caloriesEatenToday = todayQuantity.doubleValue(for: .kilocalorie())
-            let healthToday = Health(id: 1, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "fork.knife", amount: caloriesEatenToday.formattedString())
+            let healthToday = Health(id: 6, title: "Calories Eaten Today", subtitle: "Goal: 2000", image: "fork.knife", amount: caloriesEatenToday.formattedString())
             let calories = Calories(caloriesEatenToday: caloriesEatenToday.formattedString(), caloriesEatenThisWeek: "0.0") // Default for this week
             
             // Update the health stats for today
@@ -215,7 +203,7 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 2, title: "Running", subtitle: "Minutes This Week", image: "figure.run", amount: "\(count)", color: .green)
+            let activity = Activity(id: 3, title: "Running", subtitle: "Minutes This Week", image: "figure.run", amount: "\(count)", color: .green)
             
             DispatchQueue.main.async {
                 self.activities["weekRunning"] = activity
@@ -241,7 +229,7 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 1, title: "Walking", subtitle: "Minutes This Week", image: "figure.walk", amount: "\(count)", color: .yellow)
+            let activity = Activity(id: 4, title: "Walking", subtitle: "Minutes This Week", image: "figure.walk", amount: "\(count)", color: .yellow)
             
             DispatchQueue.main.async {
                 self.activities["weekWalking"] = activity
@@ -267,7 +255,7 @@ class HealthManager: ObservableObject {
                 let duration = Int(workout.duration)/60
                 count += duration
             }
-            let activity = Activity(id: 4, title: "Football", subtitle: "Minutes This Week", image: "figure.soccer", amount: "\(count)", color: .red)
+            let activity = Activity(id: 1, title: "Football", subtitle: "Minutes This Week", image: "figure.soccer", amount: "\(count)", color: .red)
             
             DispatchQueue.main.async {
                 self.activities["weekFootball"] = activity
@@ -542,6 +530,30 @@ class HealthManager: ObservableObject {
     }
     
     
+}
+
+extension HealthManager {
+    func fetchCurrentWeekFootballMinutes(completion: @escaping (Result<Double, Error>) -> Void) {
+        let workout = HKSampleType.workoutType()
+        let timePredicate = HKQuery.predicateForSamples(withStart: .startOfWeek, end: Date())
+        let workoutPredicate = HKQuery.predicateForWorkouts(with: .soccer)
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [timePredicate, workoutPredicate])
+        let query = HKSampleQuery(sampleType: workout, predicate: predicate, limit: 20, sortDescriptors: nil) { _, sample, error in
+            guard let workouts = sample as? [HKWorkout], error == nil else {
+                print("Error fetching week running data")
+                return
+            }
+            
+            var count: Double = 0
+            for workout in workouts {
+                let duration = Double(workout.duration)/60
+                count += duration
+            }
+            completion(.success(count))
+            
+        }
+        healthStore.execute(query)
+    }
 }
 
 extension Double {
