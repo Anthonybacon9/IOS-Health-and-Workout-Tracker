@@ -25,8 +25,7 @@ struct Health_and_Workout_TrackerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(manager)
+            SplashScreenView()
         }
     }
 }

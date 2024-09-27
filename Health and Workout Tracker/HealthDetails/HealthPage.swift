@@ -13,8 +13,7 @@ struct HealthPage: View {
     @State var showCalPopover = false
     @State  var showBMIPopover = false
     
-    var body: some View {
-        NavigationStack { // Use NavigationStack to enable navigation
+    var body: some View {// Use NavigationStack to enable navigation
             VStack {
                 ScrollView(showsIndicators: false) {
                     HStack {
@@ -85,12 +84,12 @@ struct HealthPage: View {
                     .padding(.horizontal)
                     .scrollTargetLayout()
                 }
-                .contentMargins(.vertical, 40, for: .scrollContent)
+                .contentMargins(.vertical, 10, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 
                 Spacer()
             }
-        }
+        
     }
 }
 
