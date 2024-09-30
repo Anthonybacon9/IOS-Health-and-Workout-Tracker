@@ -1,7 +1,7 @@
 import SwiftUI
 import Charts
 
-struct Football: Identifiable {
+struct Walking: Identifiable {
     var id: Int
     var title: String
     var distance: Double
@@ -17,12 +17,8 @@ struct Football: Identifiable {
     var startDate: Date  // Add startDate property here
 }
 
-struct HeartRate {
-    let time: Date
-    let bpm: Double
-}
 
-struct FootballView: View {
+struct WalkingView: View {
     @EnvironmentObject var manager: HealthManager
     var activity: Activity?
     @State private var currentIndex: Int = 0  // Track the current workout index
@@ -31,7 +27,7 @@ struct FootballView: View {
         ZStack {
             // Background soccer image with opacity for subtle effect
             GeometryReader { geometry in
-                Image(systemName: "figure.indoor.soccer")
+                Image(systemName: "figure.walk")
                     .resizable()
                     .scaledToFit()
                     .frame(width: geometry.size.width, height: geometry.size.height)
@@ -40,11 +36,11 @@ struct FootballView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                if manager.footballWorkouts.indices.contains(currentIndex) {
-                    let football = manager.footballWorkouts[currentIndex]
+                if manager.walkingWorkouts.indices.contains(currentIndex) {
+                    let walking = manager.walkingWorkouts[currentIndex]
                     
                     // Title Section
-                    Text("Football")
+                    Text("Walking")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
@@ -54,15 +50,15 @@ struct FootballView: View {
                     HStack {
                         // Chevron right button for next workout
                         Button {
-                            if currentIndex < manager.footballWorkouts.count - 1 {
+                            if currentIndex < manager.walkingWorkouts.count - 1 {
                                 currentIndex += 1
                             }
                         } label: {
                             Image(systemName: "chevron.left")
                         }
-                        .disabled(currentIndex == manager.footballWorkouts.count - 1)  // Disable if at the last workout
+                        .disabled(currentIndex == manager.walkingWorkouts.count - 1)  // Disable if at the last workout
 
-                        Text(football.date)
+                        Text(walking.date)
                             .font(.title3)
                             .foregroundColor(.secondary)
                         
@@ -82,7 +78,7 @@ struct FootballView: View {
 
                     // Scroll view for charts
                     ScrollView(.horizontal, showsIndicators: false) {
-                        if !football.heartRates.isEmpty {
+                        if !walking.heartRates.isEmpty {
                             HStack {
                                 VStack {
                                     Text("Heart Rate Over Time")
@@ -90,7 +86,7 @@ struct FootballView: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.horizontal)
                                     
-                                    Chart(football.heartRates, id: \.time) { rate in
+                                    Chart(walking.heartRates, id: \.time) { rate in
                                         LineMark(
                                             x: .value("Time", rate.time),
                                             y: .value("BPM", rate.bpm)
@@ -114,13 +110,13 @@ struct FootballView: View {
 
                     // Stats Section
                     VStack(alignment: .leading, spacing: 15) {
-                        StatRowView(label: "Time", value: "\(football.time) - \(football.endTime)")
-                        StatRowView(label: "Distance Ran", value: String(format: "%.2f", football.distance) + " km")
-                        StatRowView(label: "Calories Burned", value: String(format: "%.0f", football.Kcal) + " kcal")
-                        StatRowView(label: "Calories this day", value: String(format: "%.0f", football.caloriesEaten) + " Kcal")
-                        StatRowView(label: "Avg Heart Rate", value: String(format: "%.0f", football.avgHeartRate) + " bpm")
-                        StatRowView(label: "Max Heart Rate", value: String(format: "%.0f", football.maxHeartRate) + " bpm")
-                        StatRowView(label: "Min Heart Rate", value: String(format: "%.0f", football.minHeartRate) + " bpm")
+                        StatRowView(label: "Time", value: "\(walking.time) - \(walking.endTime)")
+                        StatRowView(label: "Distance Ran", value: String(format: "%.2f", walking.distance) + " km")
+                        StatRowView(label: "Calories Burned", value: String(format: "%.0f", walking.Kcal) + " kcal")
+                        StatRowView(label: "Calories this day", value: String(format: "%.0f", walking.caloriesEaten) + " Kcal")
+                        StatRowView(label: "Avg Heart Rate", value: String(format: "%.0f", walking.avgHeartRate) + " bpm")
+                        StatRowView(label: "Max Heart Rate", value: String(format: "%.0f", walking.maxHeartRate) + " bpm")
+                        StatRowView(label: "Min Heart Rate", value: String(format: "%.0f", walking.minHeartRate) + " bpm")
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 10)
@@ -137,7 +133,7 @@ struct FootballView: View {
 //                        .padding()
 //                        .frame(maxWidth: .infinity, alignment: .center)
                     
-                    Text("Football")
+                    Text("Walking")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
@@ -205,25 +201,7 @@ struct FootballView: View {
     }
 }
 
-// Reusable StatRowView for cleaner code
-struct StatRowView: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.headline)
-                .foregroundColor(.primary)
-            Spacer()
-            Text(value)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
 #Preview {
-    FootballView()
+    WalkingView()
         .environmentObject(HealthManager())  // Provide HealthManager to the view
 }

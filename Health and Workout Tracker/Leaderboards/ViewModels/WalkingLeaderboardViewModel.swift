@@ -8,10 +8,10 @@
 import Foundation
 import SwiftUI
 
-class LeaderboardViewModel: ObservableObject {
+class WalkingLeaderboardViewModel: ObservableObject {
     //@EnvironmentObject var manager: HealthManager
     
-    @Published var leaderResult = FootballLeaderboardResult(user: nil, top10: [])
+    @Published var walkingLeaderResult = walkingLeaderboardResult(user: nil, top10: [])
     
     var mockData = [
         LeaderboardFUser(username: "Anthony Bacon", count: 1100),
@@ -25,10 +25,10 @@ class LeaderboardViewModel: ObservableObject {
     init() {
         Task {
             do {
-                try await postMinutesUpdateForUser()
-                let result = try await fetchLeaderboards()
+                try await postWalkingUpdateForUser()
+                let result = try await fetchWalkingLeaderboards()
                 DispatchQueue.main.async {
-                    self.leaderResult = result
+                    self.walkingLeaderResult = result
                 }
             } catch {
                 print(error.localizedDescription)
@@ -36,35 +36,35 @@ class LeaderboardViewModel: ObservableObject {
         }
     }
     
-    struct FootballLeaderboardResult {
+    struct walkingLeaderboardResult {
         let user : LeaderboardFUser?
         let top10: [LeaderboardFUser]
     }
     
-    func fetchLeaderboards() async throws  -> FootballLeaderboardResult {
-        let leaders = try await DatabaseManager.shared.fetchFootballLeaderboards()
+    func fetchWalkingLeaderboards() async throws  -> walkingLeaderboardResult {
+        let leaders = try await DatabaseManager.shared.fetchWalkingLeaderboards()
         let top10 = Array(leaders.sorted(by: { $0.count > $1.count}).prefix(10))
         let username = UserDefaults.standard.string(forKey: "username")
         
         if let username = username, !top10.contains(where: { $0.username == username}) {
             let user = leaders.first(where: { $0.username == username} )
-            return FootballLeaderboardResult(user: user, top10: top10)
+            return walkingLeaderboardResult(user: user, top10: top10)
         } else {
-            return FootballLeaderboardResult(user: nil, top10: top10)
+            return walkingLeaderboardResult(user: nil, top10: top10)
         }
     }
     
-    func postMinutesUpdateForUser() async throws {
+    func postWalkingUpdateForUser() async throws {
         guard let username = UserDefaults.standard.string(forKey: "username") else {
             throw URLError(.badURL)
         }
-        let minutes = try await fetchCurrentWeekMinuteCount()
-        try await DatabaseManager.shared.postMinutesUpdateForUser(leader: LeaderboardFUser(username: username, count: Int(minutes)))
+        let distance = try await fetchCurrentWeekWalking()
+        try await DatabaseManager.shared.postWalkingUpdateForUser(leader: LeaderboardFUser(username: username, count: Int(distance)))
     }
     
-    private func fetchCurrentWeekMinuteCount() async throws -> Double {
+    private func fetchCurrentWeekWalking() async throws -> Double {
         try await withCheckedThrowingContinuation({ continuation in
-            HealthManager.shared.fetchCurrentWeekFootballMinutes { result in
+            HealthManager.shared.fetchCurrentWeekWalkingDistance { result in
                 continuation.resume(with: result)
             }
         })

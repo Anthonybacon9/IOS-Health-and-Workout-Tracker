@@ -82,6 +82,6 @@ struct BMIDetailView: View {
 //}
 
 #Preview {
-    BMIDetailView(health: Health(id: 1, title: "Calories", subtitle: "Caloric Consumption", image: "figure.walk", amount: "100"), bmi: .init(height: 1000, weight: 1000))
+    BMIDetailView(health: Health(id: 1, title: "Calories", subtitle: "Caloric Consumption", image: "figure.walk", amount: "100", color: .orange), bmi: .init(height: 1000, weight: 1000))
         .environmentObject(HealthManager())
 }

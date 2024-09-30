@@ -11,5 +11,4 @@ struct LeaderboardFUser: Codable, Identifiable {
     let id = UUID()
     let username: String
     let count: Int
-
 }

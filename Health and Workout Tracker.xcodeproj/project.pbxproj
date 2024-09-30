@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		648414C42CA60A99002A98B9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 648414C32CA60A99002A98B9 /* FirebaseFirestore */; };
+		64A6C8D02CA89CA1002542A8 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 64A6C8CF2CA89CA1002542A8 /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				648414C42CA60A99002A98B9 /* FirebaseFirestore in Frameworks */,
+				64A6C8D02CA89CA1002542A8 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,6 +120,7 @@
 			name = "Health and Workout Tracker";
 			packageProductDependencies = (
 				648414C32CA60A99002A98B9 /* FirebaseFirestore */,
+				64A6C8CF2CA89CA1002542A8 /* FirebaseAuth */,
 			);
 			productName = "Health and Workout Tracker";
 			productReference = 641AA8322C9B78860022A5AD /* Health and Workout Tracker.app */;
@@ -588,6 +591,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 648414C22CA60A99002A98B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		64A6C8CF2CA89CA1002542A8 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 648414C22CA60A99002A98B9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -20,13 +20,13 @@ struct HealthPage: View {
                         Text(getFormattedDate())
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
+                            .padding(.leading, 25)
                             .foregroundStyle(.orange)
                         Spacer()
                         Text(getFormattedTime())
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.horizontal)
+                            .padding(.trailing, 25)
                             .foregroundStyle(.orange)
                     }.scrollTransition { content, phase in
                         content
@@ -40,7 +40,7 @@ struct HealthPage: View {
                                 .opacity(phase.isIdentity ? 1.0 : 0.0)
                                 .scaleEffect(x: phase.isIdentity ? 1.0 : 0.3, y: phase.isIdentity ? 1.0 : 0.3)
                         }
-                    LazyVGrid(columns: Array(repeating: GridItem(spacing: 10), count: 1)) {
+                    LazyVGrid(columns: Array(repeating: GridItem(spacing: 10), count: 2)) {
                         ForEach(manager.healthStats.sorted(by: { $0.value.id < $1.value.id }), id: \.key) { item in
                             // Wrap HealthCard with a NavigationLink
                             if item.value.title == "BMI" {

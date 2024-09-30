@@ -10,12 +10,12 @@ import SwiftUI
 
 
 
-struct FootballLeaderboard: View {
+struct WalkingLeaderboard: View {
     @AppStorage("username") var username : String = ""
     @State var num: Int = 0
     @State var isUser: Bool = false
     
-    @StateObject var viewModel = LeaderboardViewModel()
+    @StateObject var viewModel = WalkingLeaderboardViewModel()
     
     @State var showTerms = true
     var body: some View {
@@ -40,12 +40,12 @@ struct FootballLeaderboard: View {
                             
                             Spacer()
                             
-                            Text ("Minutes played")
+                            Text ("Meters")
                                 .bold()
                         }.padding()
                         
                         LazyVStack {
-                            ForEach(Array(viewModel.leaderResult.top10.enumerated()), id: \.element.id) { (idx, person) in
+                            ForEach(Array(viewModel.walkingLeaderResult.top10.enumerated()), id: \.element.id) { (idx, person) in
                                 if username == person.username {
                                     ZStack {
 //                                        RoundedRectangle(cornerRadius: 10)
@@ -59,7 +59,7 @@ struct FootballLeaderboard: View {
                                                 .font(.headline)
                                             
                                             Image(systemName: "person.fill")
-                                                .foregroundStyle(.red)
+                                                .foregroundStyle(.purple)
                                             
                                             
                                             Spacer()
@@ -75,7 +75,7 @@ struct FootballLeaderboard: View {
                                 } else if idx == 0 {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 10)
-                                            .foregroundStyle(.red)
+                                            .foregroundStyle(.purple)
                                             .background(.thinMaterial)
                                             .opacity(0.4)
                                             .frame(width: 380, height: 40)
@@ -87,7 +87,7 @@ struct FootballLeaderboard: View {
                                                 .font(.headline)
                                             
                                             Image(systemName: "crown.fill")
-                                            .foregroundStyle(.red)
+                                            .foregroundStyle(.purple)
                                             
                                             
                                             Spacer()
@@ -128,7 +128,7 @@ struct FootballLeaderboard: View {
                         
                         
                         
-                        if let user = viewModel.leaderResult.user {
+                        if let user = viewModel.walkingLeaderResult.user {
                             Image(systemName: "ellipsis")
                                 .resizable()
                                 .scaledToFit()
@@ -138,7 +138,7 @@ struct FootballLeaderboard: View {
                                     .font(.headline)
                                 
                                 Image(systemName: "person.fill")
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(.purple)
                                 
                                 Spacer()
                                 
@@ -155,39 +155,10 @@ struct FootballLeaderboard: View {
                 
                 
             }
-        }.navigationTitle("Football Leaderboard")
+        }.navigationTitle("Walking Leaderboard")
         
         
     }
-}
-
-struct BackdropView: UIViewRepresentable {
-
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView()
-        let blur = UIBlurEffect()
-        let animator = UIViewPropertyAnimator()
-        animator.addAnimations { view.effect = blur }
-        animator.fractionComplete = 0
-        animator.stopAnimation(false)
-        animator.finishAnimation(at: .current)
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) { }
-    
-}
-
-/// A transparent View that blurs its background
-struct BackdropBlurView: View {
-    
-    let radius: CGFloat
-    
-    @ViewBuilder
-    var body: some View {
-        BackdropView().blur(radius: radius)
-    }
-    
 }
 
 #Preview {

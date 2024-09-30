@@ -13,6 +13,7 @@ struct Health {
     let subtitle: String
     let image: String
     let amount: String
+    let color: Color
 }
 
 struct HealthCard: View {
@@ -35,7 +36,7 @@ struct HealthCard: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 40, height: 40)
-                        .foregroundStyle(.secondary)  // Light color for icons
+                        .foregroundStyle(health.color)  // Light color for icons
                     
                     Text(health.subtitle)
                         .font(.subheadline)
@@ -63,5 +64,5 @@ struct HealthCard: View {
 }
 
 #Preview {
-    HealthCard(health: Health(id: 0, title: "TITLE", subtitle: "SUBTITLE", image: "figure.walk", amount: "1"))
+    HealthCard(health: Health(id: 0, title: "TITLE", subtitle: "SUBTITLE", image: "figure.walk", amount: "1", color: .orange))
 }

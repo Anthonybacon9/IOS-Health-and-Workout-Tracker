@@ -74,6 +74,6 @@ struct CaloriesDetailView: View {
 }
 
 #Preview {
-    CaloriesDetailView(manager: .init(), health: Health(id: 1, title: "Calories", subtitle: "Caloric Consumption", image: "figure.walk", amount: "100"), calorie: .init(caloriesEatenToday: "1000", caloriesEatenThisWeek: "1000"))
+    CaloriesDetailView(manager: .init(), health: Health(id: 1, title: "Calories", subtitle: "Caloric Consumption", image: "figure.walk", amount: "100", color: .orange), calorie: .init(caloriesEatenToday: "1000", caloriesEatenThisWeek: "1000"))
         .environmentObject(HealthManager())
 }

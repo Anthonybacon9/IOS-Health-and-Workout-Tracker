@@ -15,6 +15,7 @@ struct Activity {
     let image: String
     let amount: String
     let color: Color
+    var favorite: Bool = false // Add this property to track if the activity is favorited
 }
 
 struct ActivityCard: View {
@@ -42,6 +43,15 @@ struct ActivityCard: View {
                         //AND LOGGED IN!!!
                         if cardType == "football" && authenticated {
                             NavigationLink(destination: FootballLeaderboard()) {
+                                Image(systemName: "list.number")
+                                    //.resizable()
+                                    .frame(width: 25, height: 20)
+                            }
+                                //.padding(.top, 10) // Adds some space from the content above
+                            }
+                        
+                        if cardType == "Walking" && authenticated {
+                            NavigationLink(destination: WalkingLeaderboard()) {
                                 Image(systemName: "list.number")
                                     //.resizable()
                                     .frame(width: 25, height: 20)

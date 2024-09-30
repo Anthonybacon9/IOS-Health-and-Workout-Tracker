@@ -73,8 +73,6 @@ struct ContentView: View {
                     
                     Spacer()
                     
-                    //            BottomNavBar()
-                    //                .offset(y:335)
                 }.navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
